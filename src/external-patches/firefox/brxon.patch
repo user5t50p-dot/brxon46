@@ -63,3 +63,11 @@ index 0000000000..0000000001 100644
  embedded-uniffi-bindgen = []
  nimbus-fml = []
 +brxon = []
+diff --git a/Cargo.toml b/Cargo.toml
+index 0000000000..0000000002 100644
+--- a/Cargo.toml
++++ b/Cargo.toml
+@@ -9,2 +9,3 @@ members = [
+   "netwerk/base/idna_glue",
++  "netwerk/brxon",
+   "netwerk/test/http3server",
