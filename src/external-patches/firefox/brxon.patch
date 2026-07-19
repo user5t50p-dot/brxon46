@@ -6,10 +6,6 @@ index dd0f873535..bef9183e95 100644
          content/browser/blockedSite.js                  (content/blockedSite.js)
 +        content/browser/shield/blocked.html             (../components/shield/blocked.html)
          content/browser/spotlight.html                (content/spotlight.html)
-@@ -110 +111,3 @@ browser.jar:
- % override chrome://global/locale/appstrings.properties chrome://browser/locale/appstrings.properties
-+
-+#include content/zen-assets.jar.inc.mn
 diff --git a/browser/components/about/AboutRedirector.cpp b/browser/components/about/AboutRedirector.cpp
 index 958db7176c..b7dbf7a571 100644
 --- a/browser/components/about/AboutRedirector.cpp
