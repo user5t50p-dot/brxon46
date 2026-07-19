@@ -54,7 +54,7 @@ jobs:
           name: تحميل اعتماديات Rust الجديدة (vendor)
           command: |
             cd engine
-            ./mach vendor rust --ignore-modified
+            ./mach vendor rust --ignore-modified --force
           no_output_timeout: 30m
       - run:
           name: بناء متصفح Lotus
