@@ -1,0 +1,36 @@
+version: 2.1
+
+jobs:
+  build-lotus:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: xlarge
+    steps:
+      - checkout
+
+      - run:
+          name: تثبيت اعتماديات Node
+          command: npm ci
+
+      - run:
+          name: تحميل Firefox + تطبيق patches (Zen + Brxon)
+          command: npm run init
+          no_output_timeout: 45m
+
+      - run:
+          name: بناء متصفح Lotus
+          command: npm run build
+          no_output_timeout: 3h
+
+      - run:
+          name: عرض مخرجات البناء
+          command: find engine -maxdepth 4 -iname "*.tar*" -o -iname "firefox" 2>/dev/null | head -20
+
+      - store_artifacts:
+          path: engine/obj-firefox/dist
+          destination: lotus-browser-build
+
+workflows:
+  build:
+    jobs:
+      - build-lotus
