@@ -51,6 +51,12 @@ jobs:
           command: df -h /
 
       - run:
+          name: تحميل اعتماديات Rust الجديدة (vendor)
+          command: |
+            cd engine
+            ./mach vendor rust
+          no_output_timeout: 30m
+      - run:
           name: بناء متصفح Lotus
           command: npm run build
           no_output_timeout: 4h
