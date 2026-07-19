@@ -38,14 +38,14 @@ diff --git a/netwerk/base/moz.build b/netwerk/base/moz.build
 index 2d551ad265..76d563fc7c 100644
 --- a/netwerk/base/moz.build
 +++ b/netwerk/base/moz.build
-@@ -159,2 +159,3 @@ EXPORTS.mozilla.net += [
-     "CacheInfoIPCTypes.h",
+@@ -172,2 +172,3 @@ EXPORTS.mozilla.net += [
+     "SSLTokensCache.h",
 +    "ThreatBlocker.h",
-     "CaptivePortalService.h",
-@@ -179,2 +180,3 @@ UNIFIED_SOURCES += [
-     "ArrayBufferInputStream.cpp",
+     "ThrottleQueue.h",
+@@ -250,2 +251,3 @@ UNIFIED_SOURCES += [
+     "SuspendableChannelWrapper.cpp",
 +    "ThreatBlocker.cpp",
-     "BackgroundFileSaver.cpp",
+     "ThrottleQueue.cpp",
 diff --git a/netwerk/moz.build b/netwerk/moz.build
 index 86de8bc732..fb18b6cff5 100644
 --- a/netwerk/moz.build
