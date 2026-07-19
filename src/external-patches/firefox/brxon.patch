@@ -1,0 +1,85 @@
+diff --git a/browser/base/jar.mn b/browser/base/jar.mn
+index dd0f873..bef9183 100644
+--- a/browser/base/jar.mn
++++ b/browser/base/jar.mn
+@@ -102,9 +102,12 @@ browser.jar:
+ % override chrome://global/content/license.html chrome://browser/content/license.html
+         content/browser/blockedSite.xhtml               (content/blockedSite.xhtml)
+         content/browser/blockedSite.js                  (content/blockedSite.js)
++        content/browser/shield/blocked.html             (../components/shield/blocked.html)
+         content/browser/spotlight.html                (content/spotlight.html)
+         content/browser/spotlight.js                  (content/spotlight.js)
+ *       content/browser/default-bookmarks.html        (content/default-bookmarks.html)
+ 
+ # L10n resources and overrides.
+ % override chrome://global/locale/appstrings.properties chrome://browser/locale/appstrings.properties
++
++#include content/zen-assets.jar.inc.mn
+diff --git a/browser/components/about/AboutRedirector.cpp b/browser/components/about/AboutRedirector.cpp
+index 958db71..b7dbf7a 100644
+--- a/browser/components/about/AboutRedirector.cpp
++++ b/browser/components/about/AboutRedirector.cpp
+@@ -58,6 +58,10 @@ static const RedirEntry kRedirMap[] = {
+      nsIAboutModule::URI_SAFE_FOR_UNTRUSTED_CONTENT |
+          nsIAboutModule::URI_CAN_LOAD_IN_CHILD | nsIAboutModule::ALLOW_SCRIPT |
+          nsIAboutModule::HIDE_FROM_ABOUTABOUT},
++    {"brxon-block", "chrome://browser/content/shield/blocked.html",
++     nsIAboutModule::URI_SAFE_FOR_UNTRUSTED_CONTENT |
++         nsIAboutModule::ALLOW_SCRIPT |
++         nsIAboutModule::HIDE_FROM_ABOUTABOUT},
+     {"certerror", "chrome://global/content/aboutNetError.html",
+      nsIAboutModule::URI_SAFE_FOR_UNTRUSTED_CONTENT |
+          nsIAboutModule::URI_CAN_LOAD_IN_CHILD | nsIAboutModule::ALLOW_SCRIPT |
+diff --git a/layout/build/components.conf b/layout/build/components.conf
+index a9a3af5..a1e89a1 100644
+--- a/layout/build/components.conf
++++ b/layout/build/components.conf
+@@ -48,6 +48,16 @@ if defined('MOZ_WEBM'):
+     ]
+ 
+ Classes = [
++    {
++        'cid': '{880acbdf-1dbc-402b-89bc-8294d2b6353a}',
++        'contract_ids': ['@mozilla.org/threat-blocker;1'],
++        'type': 'mozilla::net::ThreatBlocker',
++        'headers': ['/netwerk/base/ThreatBlocker.h'],
++        'categories': {'content-policy': '@mozilla.org/threat-blocker;1'},
++        'singleton': True,
++        'constructor': 'mozilla::net::ThreatBlocker::GetSingleton',
++    },
++    
+     {
+         'cid': '{574ce83e-fe9f-4095-b85c-7909abbf7c37}',
+         'type': 'nsJSURI::Mutator',
+diff --git a/netwerk/base/moz.build b/netwerk/base/moz.build
+index 2d551ad..76d563f 100644
+--- a/netwerk/base/moz.build
++++ b/netwerk/base/moz.build
+@@ -157,6 +157,7 @@ EXPORTS.mozilla += [
+ 
+ EXPORTS.mozilla.net += [
+     "CacheInfoIPCTypes.h",
++    "ThreatBlocker.h",
+     "CaptivePortalService.h",
+     "ContentRange.h",
+     "Dashboard.h",
+@@ -177,6 +178,7 @@ EXPORTS.mozilla.net += [
+ 
+ UNIFIED_SOURCES += [
+     "ArrayBufferInputStream.cpp",
++    "ThreatBlocker.cpp",
+     "BackgroundFileSaver.cpp",
+     "CaptivePortalService.cpp",
+     "ContentRange.cpp",
+diff --git a/netwerk/moz.build b/netwerk/moz.build
+index 86de8bc..fb18b6c 100644
+--- a/netwerk/moz.build
++++ b/netwerk/moz.build
+@@ -7,6 +7,7 @@ with Files("**"):
+ 
+ DIRS += [
+     "base",
++    "brxon",
+     "cookie",
+     "dns",
+     "socket",
