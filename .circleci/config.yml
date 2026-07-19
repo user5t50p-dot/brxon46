@@ -4,23 +4,79 @@ jobs:
   build-lotus:
     machine:
       image: ubuntu-2204:current
-    resource_class: medium
+    resource_class: large
     steps:
       - checkout
+
+      - run:
+          name: فحص المساحة المتاحة
+          command: df -h /
+
+      - run:
+          name: تنظيف مساحة إضافية (حزم غير مستخدمة)
+          command: |
+            sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc || true
+            sudo apt-get clean
+
+      - run:
+          name: تثبيت Rust
+          command: |
+            curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+            echo 'source $HOME/.cargo/env' >> $BASH_ENV
+            source $BASH_ENV
+            rustc --version
+            cargo --version
+
+      - run:
+          name: تثبيت Python بديل (لتفادي مشاكل pip/telemetry)
+          command: |
+            python3 --version
+            pip3 --version || sudo apt-get install -y python3-pip
+
       - run:
           name: تثبيت اعتماديات Node
           command: npm ci
+
+      - restore_cache:
+          keys:
+            - cargo-registry-v1-{{ checksum "src/netwerk/brxon/Cargo.toml" }}
+            - cargo-registry-v1-
+
       - run:
           name: تحميل Firefox + تطبيق patches (Zen + Brxon)
           command: npm run init
-          no_output_timeout: 45m
+          no_output_timeout: 60m
+
+      - save_cache:
+          key: cargo-registry-v1-{{ checksum "src/netwerk/brxon/Cargo.toml" }}
+          paths:
+            - ~/.cargo/registry
+
+      - run:
+          name: فحص المساحة بعد التحميل
+          command: df -h /
+
       - run:
           name: بناء متصفح Lotus
           command: npm run build
-          no_output_timeout: 3h
+          no_output_timeout: 4h
+
+      - run:
+          name: عرض مخرجات البناء
+          command: |
+            find engine -maxdepth 5 \( -iname "*.tar*" -o -iname "firefox" -o -iname "firefox-bin" \) 2>/dev/null | head -30
+            echo "---"
+            find engine -maxdepth 5 -iname "libbrxon*" 2>/dev/null
+            echo "---"
+            find engine -maxdepth 5 -iname "ThreatBlocker*" 2>/dev/null
+
       - store_artifacts:
           path: engine/obj-firefox/dist
           destination: lotus-browser-build
+
+      - store_artifacts:
+          path: build
+          destination: build-outputs
 
 workflows:
   build:
