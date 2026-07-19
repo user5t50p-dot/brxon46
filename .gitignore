@@ -27,7 +27,6 @@ locales/firefox-l10n/
 .DS_Store
 
 mozconfig
-!configs/common/mozconfig
 
 build/signing/env/
 build/signing/nss_config/
@@ -36,3 +35,4 @@ build/signing/private_key.pem
 build/signing/private_key.p12
 
 bloat-dump.log
+!configs/*/mozconfig
