@@ -56,8 +56,6 @@ index 86de8bc732..fb18b6cff5 100644
      "cookie",
 diff --git a/build/workspace-hack/Cargo.toml b/build/workspace-hack/Cargo.toml
 index 0000000000..0000000001 100644
-diff --git a/build/workspace-hack/Cargo.toml b/build/workspace-hack/Cargo.toml
-index 0000000000..0000000001 100644
 --- a/build/workspace-hack/Cargo.toml
 +++ b/build/workspace-hack/Cargo.toml
 @@ -284,3 +284,4 @@
