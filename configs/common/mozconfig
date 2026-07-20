@@ -81,3 +81,7 @@ mk_add_options MOZ_REQUIRE_SIGNING=
 
 # تقليل التوازي لتفادي OOM على بيئة CI محدودة الذاكرة
 mk_add_options MOZ_MAKE_FLAGS="-j2"
+
+# تعطيل LTO بشكل قاطع — تفادي OOM عند ربط gkrust على بيئة CI محدودة الذاكرة
+unset MOZ_LTO
+ac_add_options --disable-lto
