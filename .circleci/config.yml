@@ -58,7 +58,9 @@ jobs:
           no_output_timeout: 30m
       - run:
           name: بناء متصفح Lotus
-          command: npm run build
+          command: |
+            export ZEN_DISABLE_LTO=1
+            npm run build
           no_output_timeout: 4h
 
       - run:
