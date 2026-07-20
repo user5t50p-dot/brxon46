@@ -4,7 +4,7 @@ jobs:
   build-lotus:
     machine:
       image: ubuntu-2204:current
-    resource_class: xlarge
+    resource_class: large
     steps:
       - checkout
 
@@ -58,7 +58,7 @@ jobs:
           no_output_timeout: 30m
       - run:
           name: بناء متصفح Lotus
-          command: npm run build
+          command: MOZ_PARALLEL_BUILD=2 npm run build
           no_output_timeout: 4h
 
       - run:
