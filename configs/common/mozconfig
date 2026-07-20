@@ -78,3 +78,6 @@ ac_add_options MOZ_TELEMETRY_REPORTING=
 export MOZ_REQUIRE_SIGNING=
 mk_add_options MOZ_REQUIRE_SIGNING=
 
+
+# تقليل التوازي لتفادي OOM على بيئة CI محدودة الذاكرة
+mk_add_options MOZ_MAKE_FLAGS="-j2"

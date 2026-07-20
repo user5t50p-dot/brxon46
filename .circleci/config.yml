@@ -58,7 +58,7 @@ jobs:
           no_output_timeout: 30m
       - run:
           name: بناء متصفح Lotus
-          command: MOZ_PARALLEL_BUILD=2 npm run build
+          command: npm run build
           no_output_timeout: 4h
 
       - run:
