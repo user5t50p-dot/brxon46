@@ -85,3 +85,13 @@ mk_add_options MOZ_MAKE_FLAGS="-j2"
 # تعطيل LTO بشكل قاطع — تفادي OOM عند ربط gkrust على بيئة CI محدودة الذاكرة
 unset MOZ_LTO
 ac_add_options --disable-lto
+
+# ══════════════════════════════════════════════
+# تقليل حجم البناء لاختبار Brxon — تعطيل مكونات ثقيلة غير ضرورية
+# ══════════════════════════════════════════════
+ac_add_options --disable-webrtc
+ac_add_options --disable-crashreporter
+ac_add_options --disable-tests
+ac_add_options --disable-debug-symbols
+ac_add_options --disable-updater
+ac_add_options MOZ_DATA_REPORTING=
