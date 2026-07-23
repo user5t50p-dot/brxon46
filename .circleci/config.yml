@@ -56,12 +56,22 @@ jobs:
             cd engine
             ./mach vendor rust --ignore-modified --force
           no_output_timeout: 30m
+      - restore_cache:
+          keys:
+            - firefox-objdir-v1-{{ .Branch }}
+            - firefox-objdir-v1-
+
       - run:
-          name: بناء متصفح Lotus
+          name: بناء متصفح Lotus (استكمال تدريجي)
           command: |
             export ZEN_DISABLE_LTO=1
             npm run build
-          no_output_timeout: 4h
+          no_output_timeout: 55m
+
+      - save_cache:
+          key: firefox-objdir-v1-{{ .Branch }}-{{ epoch }}
+          paths:
+            - engine/obj-x86_64-pc-linux-gnu
 
       - run:
           name: عرض مخرجات البناء
