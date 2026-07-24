@@ -1,0 +1,116 @@
+name: Brxon Test Build (Linux)
+
+# اختبار سريع: هل التعديل (باتش brxon) يبني بنجاح على Linux؟
+# ما يوصل لمرحلة npm run package - فقط npm run build للتأكد من عدم وجود أخطاء.
+on:
+  workflow_dispatch: {}
+  push:
+    branches:
+      - "brxon/**"
+      - "experiment/**"
+      - "feature/**"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+
+    steps:
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@main
+        with:
+          tool-cache: false
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+
+      - name: Install dependencies
+        run: npm ci
+
+      # نفس مفتاح الكاش المستخدم في pr-test.yml، عشان نستفيد من نفس الكاش
+      # اللي يبنيه الـ CI الرسمي إذا surfer.json ما تغيّر
+      - name: Restore Surfer engine cache
+        id: surfer-engine-cache
+        uses: actions/cache@v4
+        with:
+          path: .surfer/engine/
+          key: surfer-engine-${{ hashFiles('surfer.json') }}
+
+      - name: Setup Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Install system build dependencies
+        run: |
+          set -x
+          sudo apt-get update --fix-missing
+          sudo apt-get update
+          sudo apt-get install -y python3 python3-pip dos2unix yasm nasm build-essential \
+            libgtk2.0-dev libpython3-dev m4 uuid libasound2-dev libcurl4-openssl-dev \
+            libdbus-1-dev libdrm-dev libdbus-glib-1-dev libgtk-3-dev libpulse-dev \
+            libx11-xcb-dev libxt-dev xvfb lld llvm
+
+      - name: Download Firefox and dependencies
+        run: npm run download
+
+      - name: Run Bootstrap
+        run: npm run bootstrap
+
+      - name: Add .hgignore file to the engine dir
+        run: touch engine/.hgignore
+
+      # هذي الخطوة تطبّق كل باتشات Zen تلقائيًا - بما فيها باتش brxon حسب ما أكدت
+      - name: Import patches (includes brxon)
+        run: npm run import
+
+      - name: Install matching Rust toolchain
+        run: |
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain "$(cat .rust-toolchain)"
+          echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
+          source "$HOME/.cargo/env"
+          rustup target add x86_64-unknown-linux-gnu
+          rustc --version
+
+      - name: mach bootstrap
+        run: |
+          cd engine
+          export SURFER_PLATFORM="linux"
+          ./mach --no-interactive bootstrap --application-choice browser
+
+      - name: Build
+        env:
+          SURFER_COMPAT: x86_64
+          ZEN_DISABLE_LTO: "1"
+        run: |
+          export SURFER_PLATFORM="linux"
+          npm run build
+
+      - name: Verify binary was produced
+        run: |
+          BIN_PATH=$(find engine/obj-x86_64-pc-linux-gnu/dist/bin -maxdepth 1 -iname "zen" -o -iname "firefox" 2>/dev/null | head -n1)
+          if [ -z "$BIN_PATH" ]; then
+            echo "لم يتم العثور على ملف تنفيذي - راجع لوج البناء"
+            exit 1
+          fi
+          echo "تم إيجاد الملف التنفيذي: $BIN_PATH"
+
+      - name: Upload build binary (for quick manual testing)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          retention-days: 3
+          name: brxon-test-build-${{ github.sha }}
+          path: engine/obj-x86_64-pc-linux-gnu/dist/bin/
+          if-no-files-found: warn
