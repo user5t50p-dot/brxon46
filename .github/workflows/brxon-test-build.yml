@@ -89,6 +89,16 @@ jobs:
           export SURFER_PLATFORM="linux"
           ./mach --no-interactive bootstrap --application-choice browser
 
+      # هذي الخطوة ضرورية لأن باتش brxon يضيف Rust dependencies جديدة
+      # (مثل ed25519-dalek) لملف netwerk/brxon/Cargo.toml، والبناء يشتغل
+      # بوضع offline (--frozen) فلازم الاعتمادية تكون موجودة مسبقًا في
+      # engine/third_party/rust قبل ما نوصل لخطوة Build
+      - name: Vendor new Rust dependencies (brxon)
+        run: |
+          source "$HOME/.cargo/env"
+          cd engine
+          ./mach vendor rust --ignore-modified --force
+
       - name: Build
         env:
           SURFER_COMPAT: x86_64
