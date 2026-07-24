@@ -39,9 +39,3 @@ tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 parking_lot = "0.12"
 mozilla-central-workspace-hack = { version = "0.1", features = ["brxon"], optional = true }
 
-[profile.release]
-opt-level     = 3
-lto           = true
-codegen-units = 1
-strip         = true
-
